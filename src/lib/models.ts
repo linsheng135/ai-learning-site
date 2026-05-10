@@ -6,7 +6,7 @@ export interface ModelConfig {
 }
 
 export const models: ModelConfig[] = [
-  { id: "deepseek-chat", name: "DeepSeek Chat", provider: "deepseek", description: "国内直连，稳定可靠" },
+  { id: "deepseek-v4-flash", name: "DeepSeek Chat", provider: "deepseek", description: "国内直连，稳定可靠" },
 ];
 
 export function getModelConfig(modelId?: string): ModelConfig {
@@ -27,7 +27,7 @@ export async function callModel(params: ChatParams): Promise<string> {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
     body: JSON.stringify({
-      model: "deepseek-chat",
+      model: "deepseek-v4-flash",
       messages: [
         { role: "system", content: params.systemPrompt },
         ...params.messages,

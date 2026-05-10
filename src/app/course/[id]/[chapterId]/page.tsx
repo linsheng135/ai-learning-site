@@ -19,7 +19,7 @@ export default function CoursePage() {
   const [doc, setDoc] = useState("");
   const [loading, setLoading] = useState(false);
   const [completed, setCompleted] = useState(false);
-  const [modelId, setModelId] = useState("deepseek-chat");
+  const [modelId, setModelId] = useState("deepseek-v4-flash");
 
   useEffect(() => {
     const p = getProgress();

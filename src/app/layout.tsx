@@ -46,7 +46,7 @@ export default function RootLayout({
         <Sidebar />
         <main className="flex-1 min-w-0 flex flex-col">
           {/* 顶部导航 */}
-          <nav className="shrink-0 px-4 py-2 border-b border-[var(--border)] bg-[var(--sidebar)] flex items-center gap-4 overflow-x-auto">
+          <nav className="shrink-0 px-4 py-2 border-b border-[var(--border)] bg-[var(--sidebar)] flex items-center gap-4">
             <Link
               href="/"
               className={`text-xs whitespace-nowrap transition-colors ${

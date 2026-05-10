@@ -5,7 +5,7 @@ import { searchDuckDuckGo, formatSearchContext } from "@/lib/search";
 
 export async function POST(request: NextRequest) {
   try {
-    const { messages, chapterContext, modelId = "deepseek-chat", searchEnabled } = await request.json();
+    const { messages, chapterContext, modelId = "deepseek-v4-flash", searchEnabled } = await request.json();
 
     const promptCfg = getPrompt("chat");
     let systemPrompt = promptCfg?.systemPrompt ?? "你是一位专业且耐心的 AI 导师。";

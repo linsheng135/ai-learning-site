@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
       chapterDescription,
       courseTitle,
       difficulty = "beginner",
-      modelId = "deepseek-chat",
+      modelId = "deepseek-v4-flash",
     } = await request.json();
 
     const promptCfg = getPrompt("generate-doc");
