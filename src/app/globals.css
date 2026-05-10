@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-sidebar: var(--sidebar);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+:root {
+  --background: #09090b;
+  --foreground: #e4e4e7;
+  --sidebar: #0f0f13;
+  --surface: #18181b;
+  --border: #27272a;
+  --accent: #10b981;
+  --accent-hover: #34d399;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+/* Markdown 样式 */
+.prose h1 { font-size: 1.75rem; font-weight: 700; margin-top: 2rem; margin-bottom: 1rem; color: #f4f4f5; }
+.prose h2 { font-size: 1.4rem; font-weight: 600; margin-top: 1.75rem; margin-bottom: 0.75rem; color: #f4f4f5; border-bottom: 1px solid #27272a; padding-bottom: 0.5rem; }
+.prose h3 { font-size: 1.15rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem; color: #e4e4e7; }
+.prose p { margin-bottom: 1rem; line-height: 1.8; color: #d4d4d8; }
+.prose ul, .prose ol { margin-bottom: 1rem; padding-left: 1.5rem; line-height: 1.8; color: #d4d4d8; }
+.prose li { margin-bottom: 0.25rem; }
+.prose code { background: #27272a; padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.9em; font-family: var(--font-mono); color: #10b981; }
+.prose pre { background: #18181b; border: 1px solid #27272a; border-radius: 8px; padding: 1rem 1.25rem; overflow-x: auto; margin-bottom: 1.25rem; }
+.prose pre code { background: none; padding: 0; color: #e4e4e7; }
+.prose blockquote { border-left: 3px solid #10b981; padding-left: 1rem; margin-left: 0; margin-bottom: 1rem; color: #a1a1aa; font-style: italic; }
+.prose a { color: #10b981; text-decoration: underline; }
+.prose table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+.prose th { text-align: left; padding: 0.5rem 0.75rem; background: #27272a; border: 1px solid #3f3f46; font-weight: 600; }
+.prose td { padding: 0.5rem 0.75rem; border: 1px solid #27272a; }
+.prose strong { color: #f4f4f5; font-weight: 600; }
+.prose hr { border: none; border-top: 1px solid #27272a; margin: 2rem 0; }
+
+/* 滚动条 */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #52525b; }
