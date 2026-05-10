@@ -2,14 +2,23 @@
 
 import { useState, useRef, useEffect } from "react";
 import type { ChatMessage } from "@/lib/storage";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface ChatPanelProps {
   chapterId: string;
   chapterTitle: string;
   courseTitle: string;
+  modelId: string;
+  onModelChange: (modelId: string) => void;
 }
 
-export default function ChatPanel({ chapterId, chapterTitle, courseTitle }: ChatPanelProps) {
+const models = [
+  { id: "gemini-flash", name: "Gemini", icon: "⚡" },
+  { id: "deepseek-chat", name: "DeepSeek", icon: "🔵" },
+];
+
+export default function ChatPanel({ chapterId, chapterTitle, courseTitle, modelId, onModelChange }: ChatPanelProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -43,6 +52,7 @@ export default function ChatPanel({ chapterId, chapterTitle, courseTitle }: Chat
         body: JSON.stringify({
           messages: updated.map((m) => ({ role: m.role, content: m.content })),
           chapterContext: `${courseTitle} - ${chapterTitle}`,
+          modelId,
         }),
       });
       const data = await res.json();
@@ -62,10 +72,37 @@ export default function ChatPanel({ chapterId, chapterTitle, courseTitle }: Chat
     }
   };
 
+  const clearChat = () => {
+    setMessages([]);
+    localStorage.removeItem(`ai-learning-chat-${chapterId}`);
+  };
+
   return (
     <div className="flex flex-col h-full border-t border-[#27272a] bg-[#0f0f13]">
-      <div className="px-4 py-2 border-b border-[#27272a] text-sm text-zinc-500 shrink-0">
-        💬 对话 · {chapterTitle}
+      <div className="px-4 py-2 border-b border-[#27272a] flex items-center gap-2 shrink-0">
+        <span className="text-sm text-zinc-500">💬</span>
+        <span className="text-sm text-zinc-400 truncate flex-1">{chapterTitle}</span>
+        {/* 模型切换 */}
+        <div className="flex gap-1">
+          {models.map((m) => (
+            <button
+              key={m.id}
+              onClick={() => onModelChange(m.id)}
+              className={`text-xs px-2 py-0.5 rounded transition-colors ${
+                modelId === m.id
+                  ? "bg-emerald-500/20 text-emerald-400"
+                  : "text-zinc-600 hover:text-zinc-400"
+              }`}
+            >
+              {m.icon} {m.name}
+            </button>
+          ))}
+        </div>
+        {messages.length > 0 && (
+          <button onClick={clearChat} className="text-xs text-zinc-600 hover:text-zinc-400 shrink-0">
+            清空
+          </button>
+        )}
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 min-h-0">
@@ -77,10 +114,8 @@ export default function ChatPanel({ chapterId, chapterTitle, courseTitle }: Chat
         {messages.map((msg, i) => (
           <div
             key={i}
-            className={`text-sm leading-relaxed ${
-              msg.role === "user"
-                ? "text-right"
-                : "text-left"
+            className={`text-sm ${
+              msg.role === "user" ? "text-right" : "text-left"
             }`}
           >
             <div
@@ -90,12 +125,22 @@ export default function ChatPanel({ chapterId, chapterTitle, courseTitle }: Chat
                   : "bg-[#18181b] text-zinc-300 border border-[#27272a]"
               }`}
             >
-              <div className="prose prose-sm max-w-none">{msg.content}</div>
+              {msg.role === "user" ? (
+                <div className="whitespace-pre-wrap">{msg.content}</div>
+              ) : (
+                <div className="prose prose-sm max-w-none text-zinc-300">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {msg.content}
+                  </ReactMarkdown>
+                </div>
+              )}
             </div>
           </div>
         ))}
         {loading && (
-          <div className="text-sm text-zinc-500">AI 导师正在思考...</div>
+          <div className="text-sm text-zinc-500 flex items-center gap-2">
+            <span className="animate-pulse">●</span> AI 导师正在思考...
+          </div>
         )}
         <div ref={bottomRef} />
       </div>

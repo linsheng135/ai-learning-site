@@ -1,11 +1,15 @@
 import { NextRequest } from "next/server";
-
-const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY || "";
-const DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions";
+import { callModel } from "@/lib/models";
 
 export async function POST(request: NextRequest) {
   try {
-    const { chapterTitle, chapterDescription, courseTitle, difficulty = "beginner" } = await request.json();
+    const {
+      chapterTitle,
+      chapterDescription,
+      courseTitle,
+      difficulty = "beginner",
+      modelId = "gemini-flash",
+    } = await request.json();
 
     const prompt = `请为以下学习章节生成一份详细的教学文档。
 
@@ -23,30 +27,13 @@ export async function POST(request: NextRequest) {
 6. 控制在1500字以内，分3-5个小节
 7. 语言通俗易懂，面向编程初学者`;
 
-    const response = await fetch(DEEPSEEK_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${DEEPSEEK_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "deepseek-chat",
-        messages: [
-          { role: "system", content: "你是一位优秀的编程教师，擅长用简单语言解释复杂概念。" },
-          { role: "user", content: prompt },
-        ],
-        temperature: 0.7,
-        max_tokens: 4096,
-      }),
+    const content = await callModel({
+      modelId,
+      messages: [{ role: "user", content: prompt }],
+      systemPrompt: "你是一位优秀的编程教师，擅长用简单语言解释复杂概念。",
     });
 
-    if (!response.ok) {
-      const err = await response.text();
-      return Response.json({ error: `文档生成失败: ${err}` }, { status: response.status });
-    }
-
-    const data = await response.json();
-    return Response.json({ content: data.choices[0].message.content });
+    return Response.json({ content, modelUsed: modelId });
   } catch (error) {
     return Response.json({ error: `服务器错误: ${String(error)}` }, { status: 500 });
   }

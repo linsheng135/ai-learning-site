@@ -16,6 +16,7 @@ export default function CoursePage() {
   const [doc, setDoc] = useState("");
   const [loading, setLoading] = useState(false);
   const [completed, setCompleted] = useState(false);
+  const [modelId, setModelId] = useState("gemini-flash");
 
   useEffect(() => {
     const p = getProgress();
@@ -40,6 +41,7 @@ export default function CoursePage() {
           chapterDescription: result.chapter.description,
           courseTitle: result.course.title,
           difficulty: "beginner",
+          modelId,
         }),
       });
       const data = await res.json();
@@ -125,6 +127,8 @@ export default function CoursePage() {
             chapterId={chapterId}
             chapterTitle={chapter.title}
             courseTitle={course.title}
+            modelId={modelId}
+            onModelChange={setModelId}
           />
         </div>
       </div>
