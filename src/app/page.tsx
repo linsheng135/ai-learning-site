@@ -1,8 +1,8 @@
 "use client";
 
-import { courses } from "@/data/courses";
+import { useCourses } from "@/lib/useCourses";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 
 interface Progress {
   chapterId: string;
@@ -12,6 +12,7 @@ interface Progress {
 }
 
 export default function HomePage() {
+  const courses = useCourses();
   const [progress, setProgress] = useState<Record<string, Progress>>({});
   const [lastChapter, setLastChapter] = useState<string | null>(null);
 
@@ -44,6 +45,37 @@ export default function HomePage() {
     .filter((p) => p.lastAccessed)
     .sort((a, b) => new Date(b.lastAccessed).getTime() - new Date(a.lastAccessed).getTime())
     .slice(0, 3);
+
+  const suggestions = useMemo(() => {
+    const list: string[] = [];
+    if (totalDone === 0) {
+      list.push("开始你的第一课，点击下方课程进入学习");
+      list.push("AI 导师会为你生成个性化的教学文档");
+    } else if (totalDone < 3) {
+      list.push("坚持学习！每完成一章都会解锁知识卡片");
+      list.push("尝试在对话中向 AI 提问，加深理解");
+    } else if (totalDone < 8) {
+      list.push("你已学习了 " + totalDone + " 章，试试生成思维导图梳理知识结构");
+      list.push("开启间隔复习，系统会帮你巩固已学内容");
+    } else {
+      list.push("已学习 " + totalDone + " 章，继续保持！尝试做测验检验学习效果");
+      list.push("查看月度总结，了解你的学习趋势");
+    }
+
+    const incompleteCourses = courses.filter((c) => {
+      const done = c.chapters.filter((ch) => progress[ch.id]?.completed).length;
+      return done > 0 && done < c.chapters.length;
+    });
+    if (incompleteCourses.length > 0) {
+      list.push("未完成的课程：" + incompleteCourses.map((c) => c.title).join("、"));
+    }
+
+    if (recentChapters.length === 0 || (recentChapters[0] && new Date(recentChapters[0].lastAccessed).getTime() < Date.now() - 7 * 86400000)) {
+      list.push("你已经有一段时间没学习了，现在正是重新开始的好时机");
+    }
+
+    return list;
+  }, [totalDone, courses, progress, recentChapters]);
 
   return (
     <div className="flex-1 overflow-y-auto">
@@ -81,6 +113,19 @@ export default function HomePage() {
             </Link>
           );
         })()}
+
+        {/* AI 建议 */}
+        <div className="mb-6 bg-emerald-500/5 border border-emerald-500/15 rounded-xl p-5">
+          <h2 className="text-sm font-medium text-emerald-400 mb-3">AI 学习建议</h2>
+          <ul className="space-y-1.5">
+            {suggestions.map((s, i) => (
+              <li key={i} className="text-sm text-zinc-400 flex items-start gap-2">
+                <span className="text-emerald-500 mt-0.5">•</span>
+                {s}
+              </li>
+            ))}
+          </ul>
+        </div>
 
         {/* 最近学习 */}
         {recentChapters.length > 0 && (

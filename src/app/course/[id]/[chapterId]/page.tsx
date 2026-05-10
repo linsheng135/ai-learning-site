@@ -1,22 +1,25 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { findChapter } from "@/data/courses";
+import { useCourses, findChapterInCourses } from "@/lib/useCourses";
 import { useEffect, useState, useCallback } from "react";
 import { saveProgress, getProgress } from "@/lib/storage";
 import MarkdownDoc from "@/components/MarkdownDoc";
 import ChatPanel from "@/components/ChatPanel";
+import MindMap from "@/components/MindMap";
+import { cloudSetDoc, cloudSetProgress } from "@/lib/data-client";
 
 export default function CoursePage() {
   const params = useParams();
   const courseId = params.id as string;
   const chapterId = params.chapterId as string;
 
-  const result = findChapter(chapterId);
+  const courses = useCourses();
+  const result = findChapterInCourses(courses, chapterId);
   const [doc, setDoc] = useState("");
   const [loading, setLoading] = useState(false);
   const [completed, setCompleted] = useState(false);
-  const [modelId, setModelId] = useState("gemini-flash");
+  const [modelId, setModelId] = useState("deepseek-chat");
 
   useEffect(() => {
     const p = getProgress();
@@ -48,6 +51,7 @@ export default function CoursePage() {
       if (data.error) throw new Error(data.error);
       setDoc(data.content);
       localStorage.setItem(`ai-doc-${chapterId}`, data.content);
+      cloudSetDoc(chapterId, data.content);
       saveProgress(chapterId, {});
     } catch (err) {
       setDoc(`# 生成失败\n\n${String(err)}`);
@@ -59,6 +63,8 @@ export default function CoursePage() {
   const markComplete = () => {
     setCompleted(true);
     saveProgress(chapterId, { completed: true });
+    const p = getProgress();
+    cloudSetProgress(p);
   };
 
   if (!result) {
@@ -86,6 +92,9 @@ export default function CoursePage() {
           >
             生成文档
           </button>
+        )}
+        {doc && (
+          <MindMap content={doc} chapterId={chapterId} modelId={modelId} />
         )}
         {doc && !completed && (
           <button

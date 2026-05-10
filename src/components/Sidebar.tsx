@@ -1,9 +1,10 @@
 "use client";
 
-import { courses, Course, Chapter } from "@/data/courses";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useCourses } from "@/lib/useCourses";
+import type { Course } from "@/types";
 
 interface Progress {
   chapterId: string;
@@ -14,6 +15,7 @@ interface Progress {
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const courses = useCourses();
   const [progress, setProgress] = useState<Record<string, Progress>>({});
   const [collapsed, setCollapsed] = useState(false);
 
@@ -22,7 +24,6 @@ export default function Sidebar() {
     if (raw) setProgress(JSON.parse(raw));
   }, []);
 
-  // 监听 progress 变化
   useEffect(() => {
     const onStorage = () => {
       const raw = localStorage.getItem("ai-learning-progress");
@@ -44,7 +45,6 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* 移动端遮罩 */}
       {!collapsed && (
         <div
           className="fixed inset-0 bg-black/60 z-40 lg:hidden"
@@ -53,14 +53,13 @@ export default function Sidebar() {
       )}
 
       <aside
-        className={`fixed top-0 left-0 h-full z-50 bg-[#0f0f13] border-r border-[#27272a] flex flex-col transition-transform duration-200 ${
+        className={`fixed top-0 left-0 h-full z-50 bg-[var(--sidebar)] border-r border-[var(--border)] flex flex-col transition-transform duration-200 ${
           collapsed ? "-translate-x-full lg:translate-x-0 lg:w-16" : "translate-x-0 w-64"
         } lg:relative lg:z-0`}
       >
-        {/* 头部 */}
-        <div className="p-4 border-b border-[#27272a] flex items-center justify-between shrink-0">
+        <div className="p-4 border-b border-[var(--border)] flex items-center justify-between shrink-0">
           {!collapsed && (
-            <Link href="/" className="font-semibold text-lg text-zinc-100 hover:text-emerald-400 transition-colors">
+            <Link href="/" className="font-semibold text-lg text-[var(--foreground)] hover:text-[var(--accent)] transition-colors">
               AI 学习
             </Link>
           )}
@@ -72,7 +71,6 @@ export default function Sidebar() {
           </button>
         </div>
 
-        {/* 课程列表 */}
         <nav className="flex-1 overflow-y-auto p-3 space-y-4">
           {courses.map((course) => {
             const { done, total } = courseProgress(course);
@@ -130,15 +128,13 @@ export default function Sidebar() {
           })}
         </nav>
 
-        {/* 底部 */}
         {!collapsed && (
-          <div className="p-3 border-t border-[#27272a] text-xs text-zinc-600">
-            DeepSeek API · 本地存储
+          <div className="p-3 border-t border-[var(--border)] text-xs text-zinc-600">
+            DeepSeek API · 云端存储
           </div>
         )}
       </aside>
 
-      {/* 折叠按钮（侧边栏展开时在外部） */}
       {collapsed && (
         <button
           onClick={() => setCollapsed(false)}
